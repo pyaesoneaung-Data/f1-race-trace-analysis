@@ -78,6 +78,25 @@ race_pit_stops <- pit_stops %>%
 pit_stop_points <- race_trace_gap %>%
   inner_join(race_pit_stops, by = c("raceId", "driverId", "lap"))
 
+# Create race result summary
+race_results_summary <- results %>%
+  filter(raceId == race_id) %>%
+  left_join(drivers, by = "driverId") %>%
+  left_join(constructors, by = "constructorId") %>%
+  left_join(status, by = "statusId") %>%
+  mutate(driver_name = paste(forename, surname)) %>%
+  select(
+    driver_name,
+    team = name,
+    grid,
+    positionOrder,
+    laps,
+    status
+  ) %>%
+  arrange(positionOrder)
+
+print(race_results_summary)
+
 # Plot race trace with pit stop dots
 race_plot <- ggplot(race_trace_gap, aes(x = lap, y = gap_to_leader, color = driver_name)) +
   geom_line(linewidth = 1, alpha = 0.8) +
