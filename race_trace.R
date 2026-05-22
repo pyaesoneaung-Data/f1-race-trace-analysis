@@ -19,7 +19,7 @@ cat("Number of lap time records:", nrow(lap_times), "\n")
 belgium_1998 <- races %>%
   filter(year == 1998, name == "Belgian Grand Prix")
 
-print(belgium_1998)
+#print(belgium_1998)
 
 # Get race ID
 race_id <- belgium_1998$raceId
@@ -32,7 +32,7 @@ race_laps <- lap_times %>%
 cat("Number of lap records for this race:", nrow(race_laps), "\n")
 
 # View first few rows
-head(race_laps)
+#head(race_laps)
 
 # Join driver names
 race_laps <- race_laps %>%
@@ -40,11 +40,11 @@ race_laps <- race_laps %>%
   mutate(driver_name = paste(forename, surname))
 
 # Check driver names in this race
-unique_drivers <- race_laps %>%
-  select(driverId, driver_name) %>%
-  distinct()
+#unique_drivers <- race_laps %>%
+# select(driverId, driver_name) %>%
+#  distinct()
 
-print(unique_drivers)
+# print(unique_drivers)
 
 # Calculate cumulative race time for each driver
 race_trace <- race_laps %>%
@@ -54,7 +54,7 @@ race_trace <- race_laps %>%
   ungroup()
 
 # Check result
-print(head(race_trace))
+#print(head(race_trace))
 
 # Find leader cumulative time at each lap
 leader_time_by_lap <- race_trace %>%
@@ -67,18 +67,42 @@ race_trace_gap <- race_trace %>%
   mutate(gap_to_leader = cumulative_time - leader_time)
 
 # Check result
-print(head(race_trace_gap))
+#print(head(race_trace_gap))
 
-# Plot race trace: gap to leader by lap
+# Get pit stops for 1998 Belgian Grand Prix
+race_pit_stops <- pit_stops %>%
+  filter(raceId == race_id) %>%
+  select(raceId, driverId, lap, stop, duration, milliseconds)
+
+# Match pit stops with race trace data
+pit_stop_points <- race_trace_gap %>%
+  inner_join(race_pit_stops, by = c("raceId", "driverId", "lap"))
+
+# Plot race trace with pit stop dots
 race_plot <- ggplot(race_trace_gap, aes(x = lap, y = gap_to_leader, color = driver_name)) +
-  geom_line(linewidth = 1) +
+  geom_line(linewidth = 1, alpha = 0.8) +
+  geom_point(
+    data = pit_stop_points,
+    aes(x = lap, y = gap_to_leader),
+    size = 3
+  ) +
   labs(
     title = "Race Trace: 1998 Belgian Grand Prix",
-    subtitle = "Gap to race leader by lap",
+    subtitle = "Gap to race leader by lap; dots show pit stops",
     x = "Lap",
     y = "Gap to Leader (seconds)",
     color = "Driver"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 11)
+  )
 
 print(race_plot)
+
+ggsave("belgian_1998_race_trace.png", race_plot, width = 12, height = 7)
+
+cat("Number of pit stops in this race:", nrow(race_pit_stops), "\n")
+cat("Number of pit stop points matched to chart:", nrow(pit_stop_points), "\n")
