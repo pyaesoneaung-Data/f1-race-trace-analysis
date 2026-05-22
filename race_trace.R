@@ -68,3 +68,17 @@ race_trace_gap <- race_trace %>%
 
 # Check result
 print(head(race_trace_gap))
+
+# Plot race trace: gap to leader by lap
+race_plot <- ggplot(race_trace_gap, aes(x = lap, y = gap_to_leader, color = driver_name)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Race Trace: 1998 Belgian Grand Prix",
+    subtitle = "Gap to race leader by lap",
+    x = "Lap",
+    y = "Gap to Leader (seconds)",
+    color = "Driver"
+  ) +
+  theme_minimal()
+
+print(race_plot)
