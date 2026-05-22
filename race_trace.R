@@ -55,3 +55,16 @@ race_trace <- race_laps %>%
 
 # Check result
 print(head(race_trace))
+
+# Find leader cumulative time at each lap
+leader_time_by_lap <- race_trace %>%
+  group_by(lap) %>%
+  summarise(leader_time = min(cumulative_time), .groups = "drop")
+
+# Calculate each driver's gap to the leader
+race_trace_gap <- race_trace %>%
+  left_join(leader_time_by_lap, by = "lap") %>%
+  mutate(gap_to_leader = cumulative_time - leader_time)
+
+# Check result
+print(head(race_trace_gap))
