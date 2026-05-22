@@ -45,3 +45,13 @@ unique_drivers <- race_laps %>%
   distinct()
 
 print(unique_drivers)
+
+# Calculate cumulative race time for each driver
+race_trace <- race_laps %>%
+  arrange(driverId, lap) %>%
+  group_by(driverId, driver_name) %>%
+  mutate(cumulative_time = cumsum(milliseconds) / 1000) %>%
+  ungroup()
+
+# Check result
+print(head(race_trace))
