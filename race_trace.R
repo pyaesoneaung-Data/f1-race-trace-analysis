@@ -24,3 +24,24 @@ print(belgium_1998)
 # Get race ID
 race_id <- belgium_1998$raceId
 cat("Race ID for 1998 Belgian Grand Prix is:", race_id, "\n")
+
+# Get lap times for 1998 Belgian Grand Prix
+race_laps <- lap_times %>%
+  filter(raceId == race_id)
+
+cat("Number of lap records for this race:", nrow(race_laps), "\n")
+
+# View first few rows
+head(race_laps)
+
+# Join driver names
+race_laps <- race_laps %>%
+  left_join(drivers, by = "driverId") %>%
+  mutate(driver_name = paste(forename, surname))
+
+# Check driver names in this race
+unique_drivers <- race_laps %>%
+  select(driverId, driver_name) %>%
+  distinct()
+
+print(unique_drivers)
